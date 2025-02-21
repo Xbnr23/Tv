@@ -1,41 +1,26 @@
+// بيانات القنوات (يمكن استبدالها بقراءة من ملف JSON أو API)
+const channels = [
+    { name: "قناة BeIN Sports 1", url: "https://5d00db0e0fcd5.streamlock.net/7236/7236/playlist.m3u8" },
+    { name: "قناة BeIN Sports 2", url: "https://5d00db0e0fcd5.streamlock.net/7236/7236/playlist.m3u8" },
+    { name: "قناة Al Jazeera Sport", url: "https://5d00db0e0fcd5.streamlock.net/7236/7236/playlist.m3u8" },
+    { name: "قناة Match TV", url: "https://5d00db0e0fcd5.streamlock.net/7236/7236/playlist.m3u8" },
+];
+
 // اختيار العناصر
 const channelList = document.getElementById("channel-list");
 const videoPlayer = document.getElementById("video-player");
 
-// قراءة ملف نصي الذي يحتوي على القنوات
-async function loadChannels() {
-    try {
-        const response = await fetch("channelslist.txt");
-        const text = await response.text();
-
-        // تحليل الملف النصي واستخراجه كقائمة قنوات
-        const channels = text
-            .trim() // إزالة الأحرف الفارغة من البداية والنهاية
-            .split("\n") // تقسيم النص إلى صفوف
-            .map(line => line.split("|")) // تقسيم كل صف إلى اسم القناة ورابط البث
-            .filter(channel => channel.length === 2) // التأكد من وجود اسم القناة ورابط البث
-            .map(([name, url]) => ({ name, url })); // تحويل الصفوف إلى أوبجكت
-
-        // إنشاء قائمة القنوات ديناميكيًا
-        channels.forEach((channel, index) => {
-            const listItem = document.createElement("li");
-            listItem.textContent = channel.name;
-            listItem.dataset.index = index;
-            listItem.addEventListener("click", () => selectChannel(index, channels));
-            channelList.appendChild(listItem);
-        });
-
-        // تحميل القناة الأولى تلقائيًا عند فتح الصفحة
-        if (channels.length > 0) {
-            selectChannel(0, channels);
-        }
-    } catch (error) {
-        console.error("حدث خطأ أثناء تحميل القنوات:", error);
-    }
-}
+// إنشاء قائمة القنوات ديناميكيًا
+channels.forEach((channel, index) => {
+    const listItem = document.createElement("li");
+    listItem.textContent = channel.name;
+    listItem.dataset.index = index;
+    listItem.addEventListener("click", () => selectChannel(index));
+    channelList.appendChild(listItem);
+});
 
 // تحديد القناة المختارة
-function selectChannel(index, channels) {
+function selectChannel(index) {
     const selectedChannel = channels[index];
     if (selectedChannel) {
         // تحديث مصدر الفيديو
@@ -45,5 +30,7 @@ function selectChannel(index, channels) {
     }
 }
 
-// تشغيل الوظيفة الرئيسية لتحميل القنوات
-loadChannels();
+// تحميل القناة الأولى تلقائيًا عند فتح الصفحة
+if (channels.length > 0) {
+    selectChannel(0);
+}
