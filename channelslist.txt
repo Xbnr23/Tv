@@ -1,0 +1,2 @@
+https://xmltv.tvkaista.net/guides/bein.com.xml
+https://xmltv.tvkaista.net/guides/beinsports.com.xml
