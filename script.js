@@ -1,36 +1,93 @@
-// بيانات القنوات (يمكن استبدالها بقراءة من ملف JSON أو API)
-const channels = [
-    { name: "قناة BeIN Sports 1", url: "https://5d00db0e0fcd5.streamlock.net/7236/7236/playlist.m3u8" },
-    { name: "قناة BeIN Sports 2", url: "https://5d00db0e0fcd5.streamlock.net/7236/7236/playlist.m3u8" },
-    { name: "قناة Al Jazeera Sport", url: "https://5d00db0e0fcd5.streamlock.net/7236/7236/playlist.m3u8" },
-    { name: "قناة Match TV", url: "https://5d00db0e0fcd5.streamlock.net/7236/7236/playlist.m3u8" },
+// قائمة القنوات
+let channels = [
+    { name: "قناة الماتش 1", url: "https://www.sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4" },
+    { name: "قناة الماتش 2", url: "https://www.sample-videos.com/video123/mp4/480/big_buck_bunny_480p_1mb.mp4" }
 ];
 
-// اختيار العناصر
-const channelList = document.getElementById("channel-list");
-const videoPlayer = document.getElementById("video-player");
+// عرض القنوات في الشريط الجانبي
+function renderChannels() {
+    const channelList = document.getElementById("channel-list");
+    channelList.innerHTML = ""; // تفريغ القائمة
 
-// إنشاء قائمة القنوات ديناميكيًا
-channels.forEach((channel, index) => {
-    const listItem = document.createElement("li");
-    listItem.textContent = channel.name;
-    listItem.dataset.index = index;
-    listItem.addEventListener("click", () => selectChannel(index));
-    channelList.appendChild(listItem);
-});
+    channels.forEach((channel, index) => {
+        const li = document.createElement("li");
+        li.textContent = channel.name;
+        li.onclick = () => selectChannel(index);
+        channelList.appendChild(li);
+    });
+}
 
-// تحديد القناة المختارة
+// اختيار قناة
 function selectChannel(index) {
     const selectedChannel = channels[index];
-    if (selectedChannel) {
-        // تحديث مصدر الفيديو
-        videoPlayer.src = selectedChannel.url;
-        videoPlayer.load();
-        videoPlayer.play();
+    document.getElementById("current-channel").textContent = `قناة: ${selectedChannel.name}`;
+    const video = document.getElementById("video-stream");
+    video.src = selectedChannel.url;
+    video.load();
+}
+
+// إضافة قناة جديدة
+function addChannel() {
+    const name = document.getElementById("new-channel-name").value.trim();
+    const url = document.getElementById("new-channel-url").value.trim();
+
+    if (name && url) {
+        channels.push({ name, url });
+        renderChannels();
+        document.getElementById("new-channel-name").value = "";
+        document.getElementById("new-channel-url").value = "";
+    } else {
+        alert("يرجى تعبئة جميع الحقول.");
     }
 }
 
-// تحميل القناة الأولى تلقائيًا عند فتح الصفحة
-if (channels.length > 0) {
-    selectChannel(0);
+// تغيير دقة الفيديو
+function changeResolution() {
+    const resolution = document.getElementById("resolution").value;
+    const video = document.getElementById("video-stream");
+    video.width = resolution * 1.77; // نسبة العرض إلى الارتفاع (16:9)
+    video.height = resolution;
+}
+
+// عند تحميل الصفحة
+window.onload = () => {
+    renderChannels();
+    selectChannel(0); // اختيار القناة الأولى افتراضيًا
+}
+// حذف قناة
+function deleteChannel(index) {
+    if (confirm("هل أنت متأكد من حذف هذه القناة؟")) {
+        channels.splice(index, 1); // حذف القناة من المصفوفة
+        renderChannels(); // إعادة رسم القائمة
+        selectChannel(0); // اختيار القناة الأولى افتراضيًا بعد الحذف
+    }
+}
+
+// عرض القنوات في الشريط الجانبي مع زر الحذف
+function renderChannels() {
+    const channelList = document.getElementById("channel-list");
+    channelList.innerHTML = ""; // تفريغ القائمة
+
+    channels.forEach((channel, index) => {
+        const li = document.createElement("li");
+        li.textContent = channel.name;
+
+        // إضافة زر حذف
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-button";
+        deleteButton.textContent = "حذف";
+        deleteButton.onclick = () => deleteChannel(index);
+
+        // إضافة الزر إلى القناة
+        li.appendChild(deleteButton);
+
+        // إضافة المستمع للنقر على القناة
+        li.onclick = (event) => {
+            if (event.target !== deleteButton) { // التأكد من أن النقر لم يكن على زر الحذف
+                selectChannel(index);
+            }
+        };
+
+        channelList.appendChild(li);
+    });
 }
